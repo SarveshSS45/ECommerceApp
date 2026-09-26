@@ -5,6 +5,7 @@ import { FaArrowLeft } from "react-icons/fa";
 
 import ProductForm from "../../components/admin/ProductForm";
 import { getAdminProducts, updateProduct } from "../../services/adminService";
+import ProductImageGallery from "../../components/admin/ProductImageGallery";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -67,10 +68,14 @@ const EditProduct = () => {
       </div>
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-        <p className="text-gray-500 mt-1">Update the details for this product</p>
+        <p className="text-gray-500 mt-1">
+          Update the details for this product
+        </p>
       </div>
 
       <ProductForm initialData={product} onSubmit={handleUpdateProduct} />
+
+      <ProductImageGallery productId={product.id} />
     </div>
   );
 };

@@ -9,6 +9,8 @@ import { getReviewsByProduct } from "../services/reviewService";
 import { getReviewSummary } from "../services/reviewService";
 import { useWishlist } from "../context/WishlistContext";
 import { addToWishlist, checkWishlist } from "../services/wishlistService";
+import { getProductImages } from "../services/productImageService";
+import ProductImageGallery from "../components/ProductImageGallery";
 import toast from "react-hot-toast";
 
 const ProductDetails = () => {
@@ -23,6 +25,8 @@ const ProductDetails = () => {
   const { user } = useAuth();
   const [product, setProduct] = useState(null);
 
+  const [galleryImages, setGalleryImages] = useState([]);
+
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const { addToCart } = useCart();
@@ -30,6 +34,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     fetchProduct();
+    fetchGalleryImages();
     fetchReviews();
     fetchReviewSummary();
     fetchWishlistStatus();
@@ -83,6 +88,16 @@ const ProductDetails = () => {
     }
   };
 
+  const fetchGalleryImages = async () => {
+    try {
+      const response = await getProductImages(id);
+
+      setGalleryImages(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleAddToCart = () => {
     addToCart(product);
 
@@ -111,11 +126,10 @@ const ProductDetails = () => {
 
   return (
     <div className="p-6">
-      <div className="flex gap-8">
-        <img
-          src={`https://localhost:7172${product.imageUrl}`}
-          alt={product.name}
-          className="w-1/2 h-96 object-cover rounded"
+      <div className="flex flex-col lg:flex-row gap-10">
+        <ProductImageGallery
+          productName={product.name}
+          images={galleryImages}
         />
 
         <div>

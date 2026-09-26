@@ -127,28 +127,37 @@ namespace ECommerce.Infrastructure.Services
 
         public async Task<bool> SetPrimaryImageAsync(int imageId)
         {
-
             var image = await _productImageRepository.GetByIdAsync(imageId);
 
             if (image == null)
                 return false;
 
-            var currentPrimary = await _productImageRepository.GetPrimaryImageAsync(image.ProductId);
+            var currentPrimary =
+                await _productImageRepository.GetPrimaryImageAsync(image.ProductId);
 
+            // If the selected image is already primary, nothing to do.
+            if (currentPrimary != null && currentPrimary.Id == image.Id)
+                return true;
+
+            // STEP 1: Remove the existing primary image.
             if (currentPrimary != null)
             {
                 currentPrimary.IsPrimary = false;
+
+                await _productImageRepository.SaveChangesAsync();
             }
 
+            // STEP 2: Set the new primary image.
             image.IsPrimary = true;
+
             await _productImageRepository.SaveChangesAsync();
+
+            // STEP 3: Keep Products.ImageUrl synchronized.
             await _productRepository.UpdateProductImageAsync(
-    image.ProductId,
-    image.ImageUrl);
+                image.ProductId,
+                image.ImageUrl);
 
             return true;
-
-
         }
 
         public async Task<ProductImageDTO?> GetImageByIdAsync(int imageId)
