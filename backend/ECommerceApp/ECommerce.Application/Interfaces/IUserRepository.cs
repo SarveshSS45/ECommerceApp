@@ -6,8 +6,10 @@ namespace ECommerce.Application.Interfaces
     {
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
+        Task<User?> GetUserByIdAsync(int userId);
         Task UpdateUserAsync(User user);
-
         Task CreateUserAsync(User user);
+
+
     }
 }

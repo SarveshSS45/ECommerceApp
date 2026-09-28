@@ -27,6 +27,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 
+import MyProfile from "./pages/MyProfile";
+
 /**
  * Renders the public Navbar only on non-admin routes.
  * Must be inside <BrowserRouter> to use useLocation.
@@ -62,6 +64,7 @@ function App() {
         <Route path="/order-success" element={<OrderSuccess />} />
 
         {/* ── Protected user routes ─────────────────────────── */}
+        <Route path="/profile" element={<ProtectedRoute><MyProfile /></ProtectedRoute>}/>
         <Route
           path="/checkout"
           element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>}

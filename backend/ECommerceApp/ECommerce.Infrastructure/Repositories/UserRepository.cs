@@ -40,5 +40,10 @@ namespace ECommerce.Infrastructure.Repositories
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
         }
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
     }
 }

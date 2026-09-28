@@ -1,8 +1,12 @@
 import axios from "axios";
 
 // ✅ Create Axios instance
+// ✅ Backend server URL
+const API_BASE_URL = "https://localhost:7172";
+
+// ✅ Create Axios instance
 const api = axios.create({
-  baseURL: "https://localhost:7172/api",
+  baseURL: `${API_BASE_URL}/api`,
 });
 
 // 🔁 REFRESH TOKEN FUNCTION
@@ -68,4 +72,5 @@ api.interceptors.response.use(
   },
 );
 
+export { API_BASE_URL };
 export default api;
