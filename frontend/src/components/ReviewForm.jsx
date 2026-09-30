@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  createReview,
-  updateReview,
-} from "../services/reviewService";
+import { createReview, updateReview } from "../services/reviewService";
 
-const ReviewForm = ({
-  productId,
-  onReviewAdded,
-  editingReview,
-  clearEdit,
-}) => {
+const ReviewForm = ({ productId, onReviewAdded, editingReview, clearEdit }) => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editingReview) {
@@ -30,9 +21,7 @@ const ReviewForm = ({
     e.preventDefault();
 
     if (!comment.trim()) {
-      toast.error(
-        "Please enter a review",
-      );
+      toast.error("Please enter a review");
       return;
     }
 
@@ -40,34 +29,23 @@ const ReviewForm = ({
       setLoading(true);
 
       if (editingReview) {
-        await updateReview(
-          editingReview.id,
-          {
-            productId: Number(
-              productId,
-            ),
-            rating,
-            comment,
-          },
-        );
-
-        toast.success(
-          "Review updated ⭐",
-        );
-
-        clearEdit();
-      } else {
-        await createReview({
-          productId: Number(
-            productId,
-          ),
+        await updateReview(editingReview.id, {
+          productId: Number(productId),
           rating,
           comment,
         });
 
-        toast.success(
-          "Review added ⭐",
-        );
+        toast.success("Review updated ⭐");
+
+        clearEdit();
+      } else {
+        await createReview({
+          productId: Number(productId),
+          rating,
+          comment,
+        });
+
+        toast.success("Review added ⭐");
       }
 
       setComment("");
@@ -75,11 +53,13 @@ const ReviewForm = ({
 
       onReviewAdded();
     } catch (err) {
-      toast.error(
-        err.response?.data
-          ?.message ||
-          "Operation failed",
-      );
+      if (err.response?.status === 401) {
+        toast.error("Your session has expired. Please login again.");
+      } else if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Unable to connect to the server. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -88,53 +68,41 @@ const ReviewForm = ({
   return (
     <div className="mt-8 border rounded-lg p-4">
       <h2 className="text-2xl font-bold mb-4">
-        {editingReview
-          ? "Edit Review"
-          : "Write a Review"}
+        {editingReview ? "Edit Review" : "Write a Review"}
       </h2>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block mb-2">
-            Rating
-          </label>
+          <label className="block mb-2">Rating</label>
 
           <div className="flex gap-1 text-3xl">
-            {[1, 2, 3, 4, 5].map(
-              (star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() =>
-                    setRating(star)
-                  }
-                  className={`${
-                    star <= rating
-                      ? "text-yellow-500"
-                      : "text-gray-300"
-                  }`}
-                >
-                  ★
-                </button>
-              ),
-            )}
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                className={`${
+                  star <= rating ? "text-yellow-500" : "text-gray-300"
+                }`}
+              >
+                ★
+              </button>
+            ))}
           </div>
         </div>
 
         <textarea
           rows={4}
           value={comment}
-          onChange={(e) =>
-            setComment(
-              e.target.value,
-            )
-          }
+          maxLength={1000}
+          onChange={(e) => setComment(e.target.value)}
           className="border rounded px-3 py-2 w-full"
           placeholder="Share your experience..."
         />
+
+        <p className="text-sm text-gray-500 text-right">
+          {comment.length}/1000 characters
+        </p>
 
         <div className="flex gap-2">
           <button
@@ -145,8 +113,8 @@ const ReviewForm = ({
             {loading
               ? "Saving..."
               : editingReview
-              ? "Update Review"
-              : "Submit Review"}
+                ? "Update Review"
+                : "Submit Review"}
           </button>
 
           {editingReview && (

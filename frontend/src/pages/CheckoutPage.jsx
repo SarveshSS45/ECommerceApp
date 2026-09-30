@@ -5,6 +5,10 @@ import api from "../services/api";
 import toast from "react-hot-toast";
 import { applyCoupon } from "../services/couponService";
 import { getAddresses } from "../services/addressService";
+import { FiLoader, FiMapPin, FiTag } from "react-icons/fi";
+
+const inputClass =
+  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-black focus:outline-hidden focus:ring-2 focus:ring-black/10";
 
 const CheckoutPage = () => {
   const { cart, clearCart } = useCart();
@@ -29,7 +33,7 @@ const CheckoutPage = () => {
     fetchAddresses();
   }, [total]);
 
-  // ✅ STOCK VALIDATION
+  // STOCK VALIDATION
   const validateStock = async () => {
     try {
       for (let item of cart) {
@@ -79,7 +83,7 @@ const CheckoutPage = () => {
     }
   };
 
-  // ✅ APPLY COUPON
+  // APPLY COUPON
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error("Enter coupon code");
@@ -108,18 +112,17 @@ const CheckoutPage = () => {
     }
   };
 
-  // ✅ PAYMENT
+  // PAYMENT
   const handlePayment = async () => {
     if (loading) return;
 
     if (cart.length === 0) {
-      if (!selectedAddress) {
-        toast.error("Please select a delivery address");
-        return;
-      }
-
       toast.error("Cart is empty");
+      return;
+    }
 
+    if (!selectedAddress) {
+      toast.error("Please select a delivery address");
       return;
     }
 
@@ -217,130 +220,165 @@ const CheckoutPage = () => {
   console.log(addresses);
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Checkout</h1>
+    <div className="mx-auto max-w-5xl p-4 sm:p-6">
+      <h1 className="mb-6 text-2xl font-bold text-gray-900 sm:text-3xl">
+        Checkout
+      </h1>
 
-      {/* Delivery Address */}
-      <div className="border rounded-lg p-6 shadow mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Delivery Address</h2>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Delivery Address */}
+        <div className="lg:col-span-2">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="flex items-center gap-1.5 text-lg font-semibold text-gray-900">
+                <FiMapPin size={16} />
+                Delivery Address
+              </h2>
 
-          <button
-            onClick={() => navigate("/addresses")}
-            className="text-blue-600 hover:underline"
-          >
-            Manage Addresses
-          </button>
+              <button
+                onClick={() => navigate("/addresses")}
+                className="text-sm font-medium text-gray-600 hover:text-black hover:underline"
+              >
+                Manage Addresses
+              </button>
+            </div>
+
+            {addresses.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <p className="text-sm text-gray-500">No address found.</p>
+
+                <button
+                  onClick={() => navigate("/addresses")}
+                  className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+                >
+                  Add Address
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {addresses.map((address) => (
+                  <label
+                    key={address.id}
+                    className={`block cursor-pointer rounded-lg border p-4 transition ${
+                      selectedAddress?.id === address.id
+                        ? "border-black bg-gray-50 ring-1 ring-black"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="radio"
+                        checked={selectedAddress?.id === address.id}
+                        onChange={() => setSelectedAddress(address)}
+                        className="mt-1 h-4 w-4 border-gray-300 text-black focus:ring-black/20"
+                      />
+
+                      <div className="text-sm text-gray-700">
+                        <p className="font-semibold text-gray-900">
+                          {address.fullName}
+                        </p>
+
+                        <p>{address.mobileNumber}</p>
+
+                        <p>
+                          {address.addressLine1}
+                          {address.addressLine2
+                            ? `, ${address.addressLine2}`
+                            : ""}
+                        </p>
+
+                        <p>
+                          {address.city}, {address.state}
+                        </p>
+
+                        <p>
+                          {address.postalCode}, {address.country}
+                        </p>
+
+                        {address.isDefault && (
+                          <span className="mt-2 inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {addresses.length === 0 ? (
-          <div className="space-y-3">
-            <p className="text-gray-500">No address found.</p>
+        {/* Order Summary */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-24 space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Order Summary
+            </h2>
 
-            <button
-              onClick={() => navigate("/addresses")}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Add Address
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {addresses.map((address) => (
-              <label
-                key={address.id}
-                className={`block border rounded-lg p-4 cursor-pointer transition ${
-                  selectedAddress?.id === address.id
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-300"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="radio"
-                    checked={selectedAddress?.id === address.id}
-                    onChange={() => setSelectedAddress(address)}
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Subtotal</span>
+              <span>₹{total}</span>
+            </div>
+
+            <div>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <FiTag
+                    size={14}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                   />
 
-                  <div>
-                    <p className="font-bold">{address.fullName}</p>
-
-                    <p>{address.mobileNumber}</p>
-
-                    <p>
-                      {address.addressLine1}
-                      {address.addressLine2 ? `, ${address.addressLine2}` : ""}
-                    </p>
-
-                    <p>
-                      {address.city}, {address.state}
-                    </p>
-
-                    <p>
-                      {address.postalCode}, {address.country}
-                    </p>
-
-                    {address.isDefault && (
-                      <span className="inline-block mt-2 bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
-                        Default
-                      </span>
-                    )}
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Coupon Code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    disabled={couponApplied}
+                    className={`${inputClass} pl-9 disabled:bg-gray-100 disabled:text-gray-500`}
+                  />
                 </div>
-              </label>
-            ))}
+
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={couponApplied}
+                  className="rounded-lg bg-black px-4 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {couponApplied ? "Applied" : "Apply"}
+                </button>
+              </div>
+            </div>
+
+            {couponApplied && (
+              <div className="flex justify-between text-sm font-semibold text-green-600">
+                <span>Discount</span>
+                <span>-₹{discount}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+              <span className="font-semibold text-gray-900">Total</span>
+              <span className="text-xl font-bold text-gray-900">
+                ₹{finalAmount}
+              </span>
+            </div>
+
+            <button
+              onClick={handlePayment}
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-black py-3 text-base font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  <FiLoader size={18} className="animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Pay Now"
+              )}
+            </button>
           </div>
-        )}
-      </div>
-      <div className="border rounded-lg p-6 shadow space-y-5">
-        <h2 className="text-xl font-bold">Order Summary</h2>
-
-        <div className="flex justify-between">
-          <span>Subtotal</span>
-
-          <span>₹{total}</span>
         </div>
-
-        <div className="flex gap-3">
-          <input
-            type="text"
-            placeholder="Coupon Code"
-            value={couponCode}
-            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-            disabled={couponApplied}
-            className="border rounded px-3 py-2 flex-1"
-          />
-
-          <button
-            onClick={handleApplyCoupon}
-            disabled={couponApplied}
-            className="bg-green-600 text-white px-5 rounded"
-          >
-            {couponApplied ? "Applied" : "Apply"}
-          </button>
-        </div>
-
-        {couponApplied && (
-          <div className="flex justify-between text-green-600 font-semibold">
-            <span>Discount</span>
-
-            <span>-₹{discount}</span>
-          </div>
-        )}
-
-        <div className="flex justify-between text-xl font-bold border-t pt-4">
-          <span>Total</span>
-
-          <span>₹{finalAmount}</span>
-        </div>
-
-        <button
-          onClick={handlePayment}
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded text-lg"
-        >
-          {loading ? "Processing..." : "Pay Now"}
-        </button>
       </div>
     </div>
   );

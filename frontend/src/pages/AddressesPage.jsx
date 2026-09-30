@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { FiMapPin, FiPlus } from "react-icons/fi";
 
 import {
   getAddresses,
@@ -106,11 +107,9 @@ const AddressesPage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-
-      <div className="flex justify-between items-center mb-6">
-
-        <h1 className="text-3xl font-bold">
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
           My Addresses
         </h1>
 
@@ -120,46 +119,58 @@ const AddressesPage = () => {
               setEditingAddress(null);
               setShowForm(true);
             }}
-            className="bg-blue-600 text-white px-5 py-2 rounded"
+            className="flex items-center gap-2 rounded-lg bg-black px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
           >
-            + Add Address
+            <FiPlus size={16} />
+            Add Address
           </button>
         )}
-
       </div>
 
       {/* ADDRESS FORM */}
-
       {showForm && (
         <div className="mb-8">
-
           <AddressForm
             initialData={editingAddress}
-            onSubmit={
-              editingAddress
-                ? handleUpdateAddress
-                : handleAddAddress
-            }
+            onSubmit={editingAddress ? handleUpdateAddress : handleAddAddress}
             onCancel={() => {
               setShowForm(false);
               setEditingAddress(null);
             }}
           />
-
         </div>
       )}
 
       {/* ADDRESS LIST */}
-
       {addresses.length === 0 ? (
-        <div className="text-center text-gray-500 mt-10">
+        <div className="flex flex-col items-center gap-4 py-16 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
+            <FiMapPin size={28} />
+          </div>
 
-          No addresses found.
+          <h2 className="text-lg font-semibold text-gray-900">
+            No addresses found
+          </h2>
 
+          <p className="text-sm text-gray-500">
+            Add an address to speed up checkout next time.
+          </p>
+
+          {!showForm && (
+            <button
+              onClick={() => {
+                setEditingAddress(null);
+                setShowForm(true);
+              }}
+              className="mt-2 flex items-center gap-2 rounded-lg bg-black px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+            >
+              <FiPlus size={16} />
+              Add Address
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-6">
-
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           {addresses.map((address) => (
             <AddressCard
               key={address.id}
@@ -173,10 +184,8 @@ const AddressesPage = () => {
               onSetDefault={handleSetDefault}
             />
           ))}
-
         </div>
       )}
-
     </div>
   );
 };
